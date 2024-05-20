@@ -1,4 +1,5 @@
 import { browser } from 'webextension-polyfill-ts';
+import {MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 
 const MENU_ITEM_ID_SELECTION = 'selection'
 
