@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
 import {MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 import type {BrowserMessage, UserEventType} from "~type";
+import {getClientX, getClientY} from "~utils";
 
 export const config: PlasmoCSConfig = {
   matches:  ['http://*/*', 'https://*/*', '<all_urls>'],
@@ -58,6 +59,9 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
    */
   browser.runtime.onMessage.addListener(messagesFromContextMenu);
 
+  const x = lastMouseEvent ? getClientX(lastMouseEvent) : 0;
+  const y = lastMouseEvent ? getClientY(lastMouseEvent) : 0;
+
   return (show && (
     <span
       style={{
@@ -65,8 +69,8 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
         background: "yellow",
         padding: 4,
         position: "absolute",
-        top: 0,
-        left: 0,
+        top: y,
+        left: x,
         width: 100,
         height: 100,
       }}>
