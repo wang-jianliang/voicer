@@ -2,5 +2,7 @@ export type UserEventType = MouseEvent | TouchEvent | PointerEvent;
 
 export interface BrowserMessage {
   type: string;
-  info: any;
+  data: any;
+  audioData: ArrayBuffer;
+  playerUrl: string;
 }

@@ -1,18 +1,13 @@
-import type {
-  PlasmoCSConfig,
-  PlasmoCSUIJSXContainer,
-  PlasmoCSUIProps,
-  PlasmoRender
-} from "plasmo"
-import React, { type FC } from "react"
-import { createRoot } from "react-dom/client"
+import type {PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoCSUIProps, PlasmoRender} from "plasmo"
+import React, {type FC} from "react"
+import {createRoot} from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
 import {MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 import type {BrowserMessage, UserEventType} from "~type";
 import {getClientX, getClientY} from "~utils";
 
 export const config: PlasmoCSConfig = {
-  matches:  ['http://*/*', 'https://*/*', '<all_urls>'],
+  matches: ['http://*/*', 'https://*/*', '<all_urls>'],
 }
 
 let lastMouseEvent: UserEventType | undefined;
@@ -44,13 +39,16 @@ export const getRootContainer = () =>
 const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
 
   const [show, setShow] = React.useState(false);
+  const [playerUrl, setPlayerUrl] = React.useState(null);
+  const [text, setText] = React.useState(null);
 // Function called when a new message is received
   const messagesFromContextMenu = async (msg: BrowserMessage) => {
     console.log('[content.js]. Message received', msg);
 
     if (msg.type === MESSAGE_TYPE_MENU_CLICKED) {
       console.log(`menu ${msg} is clicked`);
-      setShow(!show);
+      setPlayerUrl(msg.playerUrl);
+      setText(msg.data);
     }
   };
 
@@ -59,23 +57,58 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
    */
   browser.runtime.onMessage.addListener(messagesFromContextMenu);
 
+  browser.runtime.onMessage.addListener(({audioUrl}) => {
+    if (audioUrl) {
+      let iframe = document.createElement('iframe');
+      iframe.src = playerUrl;
+      // Style the iframe to make it more obvious when we inject it
+      iframe.style = `
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 141px;
+  `;
+      iframe.frameBorder = 0;
+      iframe.scrolling = 'no';
+
+      iframe.addEventListener('load', () => {
+        iframe.contentWindow.postMessage(audioUrl, '*');
+      });
+
+      document.body.appendChild(iframe);
+    }
+  });
+
+  const requestSpeech = () => {
+    if (!text) {
+      console.error('No text to read');
+      return;
+    }
+    browser.runtime.sendMessage({command: 'requestSpeech', text: text});
+  }
+
   const x = lastMouseEvent ? getClientX(lastMouseEvent) : 0;
   const y = lastMouseEvent ? getClientY(lastMouseEvent) : 0;
 
-  return (show && (
-    <span
+  return (playerUrl && (
+    <div
       style={{
-        borderRadius: 4,
-        background: "yellow",
-        padding: 4,
-        position: "absolute",
-        top: y,
-        left: x,
-        width: 100,
-        height: 100,
+        // borderRadius: 4,
+        // background: "yellow",
+        // padding: 4,
+        position: "fixed",
+        // top: y,
+        // left: x,
+        // width: 100,
+        // height: 100,
+        bottom: 0,
+        left: 0,
+        zIndex: 100000,
       }}>
-      CSUI ROOT CONTAINER
-    </span>
+      <iframe src={playerUrl} onLoad={requestSpeech} style={{
+        width: '100vw',
+      }}/>
+    </div>
   ));
 }
 
@@ -85,7 +118,7 @@ export const render: PlasmoRender<PlasmoCSUIJSXContainer> = async ({
   const rootContainer = await createRootContainer()
   console.log("rootContainer", rootContainer)
   const root = createRoot(rootContainer)
-  root.render(<PlasmoOverlay />)
+  root.render(<PlasmoOverlay/>)
 }
 
 export default PlasmoOverlay;
