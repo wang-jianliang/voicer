@@ -2,7 +2,7 @@ import type {PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoCSUIProps, PlasmoRend
 import React, {type FC} from "react"
 import {createRoot} from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
-import {MESSAGE_TYPE_MENU_CLICKED} from "~constants";
+import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 import type {BrowserMessage, UserEventType} from "~type";
 import {getClientX, getClientY} from "~utils";
 
@@ -41,14 +41,17 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
   const [show, setShow] = React.useState(false);
   const [playerUrl, setPlayerUrl] = React.useState(null);
   const [text, setText] = React.useState(null);
+  const iframeRef = React.useRef(null);
 // Function called when a new message is received
   const messagesFromContextMenu = async (msg: BrowserMessage) => {
     console.log('[content.js]. Message received', msg);
 
     if (msg.type === MESSAGE_TYPE_MENU_CLICKED) {
       console.log(`menu ${msg} is clicked`);
-      setPlayerUrl(msg.playerUrl);
-      setText(msg.data);
+      setPlayerUrl(msg.data.playerUrl);
+      setText(msg.data.text);
+    } else if (msg.type === MESSAGE_TYPE_AUDIO_DATA && iframeRef.current) {
+      iframeRef.current.contentWindow.postMessage(msg.data, '*');
     }
   };
 
@@ -56,28 +59,6 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
    * Fired when a message is sent from either an extension process or a content script.
    */
   browser.runtime.onMessage.addListener(messagesFromContextMenu);
-
-  browser.runtime.onMessage.addListener(({audioUrl}) => {
-    if (audioUrl) {
-      let iframe = document.createElement('iframe');
-      iframe.src = playerUrl;
-      // Style the iframe to make it more obvious when we inject it
-      iframe.style = `
-    top: 0;
-    left: 0;
-    width: 250px;
-    height: 141px;
-  `;
-      iframe.frameBorder = 0;
-      iframe.scrolling = 'no';
-
-      iframe.addEventListener('load', () => {
-        iframe.contentWindow.postMessage(audioUrl, '*');
-      });
-
-      document.body.appendChild(iframe);
-    }
-  });
 
   const requestSpeech = () => {
     if (!text) {
@@ -105,7 +86,7 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
         left: 0,
         zIndex: 100000,
       }}>
-      <iframe src={playerUrl} onLoad={requestSpeech} style={{
+      <iframe src={playerUrl} ref={iframeRef} onLoad={requestSpeech} style={{
         width: '100vw',
       }}/>
     </div>

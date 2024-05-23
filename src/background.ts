@@ -1,5 +1,5 @@
 import {browser} from 'webextension-polyfill-ts';
-import {MESSAGE_TYPE_MENU_CLICKED} from "~constants";
+import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 
 const MENU_ITEM_ID_SELECTION = 'selection'
 
@@ -17,8 +17,10 @@ function requestSpeech(text: string, onLoaded: (audioData: ArrayBuffer) => void)
   })
     .then(response => response.blob())
     .then(blob => {
+      console.log('audio data blob', blob)
       const reader = new FileReader();
       reader.onloadend = () => {
+        console.log('audio data', reader.result)
         onLoaded(reader.result as ArrayBuffer);
       };
       reader.readAsArrayBuffer(blob);
@@ -40,8 +42,10 @@ browser.contextMenus?.onClicked.addListener(async function (info) {
   if (info.menuItemId === MENU_ITEM_ID_SELECTION && tab.id) {
     await browser.tabs.sendMessage(tab.id, {
       type: MESSAGE_TYPE_MENU_CLICKED,
-      data: info.selectionText,
-      playerUrl,
+      data: {
+        text: info.selectionText,
+        playerUrl,
+      },
     });
   }
 });
@@ -51,10 +55,12 @@ browser.runtime.onMessage.addListener(async ({ command, text }) => {
   console.log('[background.js]', 'onMessage', command, text);
   if (command === 'requestSpeech') {
     return requestSpeech(text, audioData => {
-      const audioUrl = URL.createObjectURL(new Blob([audioData], { type: 'audio/mpeg' }));
-      if (tab.id) {
-        browser.tabs.sendMessage(tab.id, { type: 'audioUrl', audioUrl });
-      }
+      // const audioUrl = URL.createObjectURL(new Blob([audioData], { type: 'audio/mpeg' }));
+      // if (tab.id) {
+      //   browser.tabs.sendMessage(tab.id, { type: 'audioUrl', audioUrl });
+      // }
+      const audioArray = Array.from(new Uint8Array(audioData));
+      browser.tabs.sendMessage(tab.id, { type: MESSAGE_TYPE_AUDIO_DATA, data: audioArray });
     });
   }
   return Promise.resolve();
