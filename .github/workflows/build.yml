@@ -26,14 +26,15 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: pnpm run install
-    - run: pnpm run build
+    - run: pnpm install
+    - run: pnpm build
+    - run: pnpm package
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4.3.3
       with:
         # Artifact name
         name: read-aloud # optional, default is artifact
         # A file, directory or wildcard pattern that describes what to upload
-        path: build
+        path: build/chrome-mv3-prod.zip
         # The desired behavior if no files are found using the provided path.
           
