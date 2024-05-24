@@ -37,13 +37,14 @@ function Player() {
         return;
       }
 
-      const audioData = new Uint8Array(event.data.data).buffer;
+      const data = event.data.data;
+      const audioData = new Uint8Array(data.audioData).buffer;
       const audioUrl = !DEBUG ? URL.createObjectURL(new Blob([audioData], {type: 'audio/mpeg'})) :
         'https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3';
       setPlayList([
         {
-          name: 'name',
-          writer: 'writer',
+          name: 'Read Aloud',
+          writer: data.name,
           img: '../assets/icon512.png',
           src: audioUrl,
           id: 1,

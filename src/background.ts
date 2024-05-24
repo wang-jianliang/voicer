@@ -2,6 +2,9 @@ import {browser} from 'webextension-polyfill-ts';
 import {DEBUG, MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 
 const MENU_ITEM_ID_SELECTION = 'selection'
+const reader = {
+  name: 'Microsoft Server Speech Text to Speech Voice (en-US, JennyMultilingualNeural)', display: 'Jenny'
+};
 
 function requestSpeech(text: string, onLoaded: (audioData: ArrayBuffer) => void) {
   return fetch('https://reader-api.wangjianliang0.workers.dev/api/v1', {
@@ -11,7 +14,7 @@ function requestSpeech(text: string, onLoaded: (audioData: ArrayBuffer) => void)
       'Authorization': 'Bearer 5c1d3dce69b12976105fa1ef8b513769f1959672ec8759cfb22099f41e5837f3'
     },
     body: JSON.stringify({
-      name: 'Microsoft Server Speech Text to Speech Voice (en-US, JennyMultilingualNeural)',
+      name: reader.name,
       text: text,
     })
   })
@@ -61,12 +64,8 @@ browser.runtime.onMessage.addListener(async ({ command, text }) => {
       return;
     }
     return requestSpeech(text, audioData => {
-      // const audioUrl = URL.createObjectURL(new Blob([audioData], { type: 'audio/mpeg' }));
-      // if (tab.id) {
-      //   browser.tabs.sendMessage(tab.id, { type: 'audioUrl', audioUrl });
-      // }
       const audioArray = Array.from(new Uint8Array(audioData));
-      browser.tabs.sendMessage(tab.id, { type: MESSAGE_TYPE_AUDIO_DATA, data: audioArray });
+      browser.tabs.sendMessage(tab.id, { type: MESSAGE_TYPE_AUDIO_DATA, data: {audioData: audioArray, name: reader.display}});
     });
   }
   return Promise.resolve();
