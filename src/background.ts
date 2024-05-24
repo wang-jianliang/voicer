@@ -1,5 +1,5 @@
 import {browser} from 'webextension-polyfill-ts';
-import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
+import {DEBUG, MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 
 const MENU_ITEM_ID_SELECTION = 'selection'
 
@@ -54,6 +54,12 @@ browser.runtime.onMessage.addListener(async ({ command, text }) => {
   const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
   console.log('[background.js]', 'onMessage', command, text);
   if (command === 'requestSpeech') {
+    if (DEBUG) {
+      // sleep for 10 seconds to simulate long-running task
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await browser.tabs.sendMessage(tab.id, {type: MESSAGE_TYPE_AUDIO_DATA, data: new Uint8Array(1000)});
+      return;
+    }
     return requestSpeech(text, audioData => {
       // const audioUrl = URL.createObjectURL(new Blob([audioData], { type: 'audio/mpeg' }));
       // if (tab.id) {

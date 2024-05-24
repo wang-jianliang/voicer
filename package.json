@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "plasmo": "0.86.3",
+    "prop-types": "^15.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-epic-spinners": "^0.5.0",
     "react-modern-audio-player": "1.4.0-rc.2",
     "webextension-polyfill-ts": "^0.26.0"
   },
@@ -33,9 +35,16 @@
       "tabs",
       "contextMenus"
     ],
-    "web_accessible_resources": [{
-      "resources": ["sandboxes/player.html"],
-      "matches": ["*://*/*"]
-    }]
+    "web_accessible_resources": [
+      {
+        "resources": [
+          "sandboxes/player.html",
+          "sandboxes/assets/*"
+        ],
+        "matches": [
+          "*://*/*"
+        ]
+      }
+    ]
   }
 }

@@ -8,12 +8,18 @@ dependencies:
   plasmo:
     specifier: 0.86.3
     version: 0.86.3(react-dom@18.2.0)(react@18.2.0)
+  prop-types:
+    specifier: ^15.8.1
+    version: 15.8.1
   react:
     specifier: 18.2.0
     version: 18.2.0
   react-dom:
     specifier: 18.2.0
     version: 18.2.0(react@18.2.0)
+  react-epic-spinners:
+    specifier: ^0.5.0
+    version: 0.5.0(@babel/core@7.24.5)(react-dom@18.2.0)(react-is@18.3.1)
   react-modern-audio-player:
     specifier: 1.4.0-rc.2
     version: 1.4.0-rc.2(@babel/core@7.24.5)(react-dom@18.2.0)(react-is@18.3.1)(react@18.2.0)
@@ -5328,6 +5334,14 @@ packages:
     engines: {node: '>= 0.6.0'}
     dev: false
 
+  /prop-types@15.8.1:
+    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react-is: 16.13.1
+    dev: false
+
   /proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
     dev: false
@@ -5381,6 +5395,17 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.2
+    dev: false
+
+  /react-epic-spinners@0.5.0(@babel/core@7.24.5)(react-dom@18.2.0)(react-is@18.3.1):
+    resolution: {integrity: sha512-tKdJ/FiesCVifYETHW0qS/7kQ6vDE4kf0pJR4iTwkNjl84/rBePdZQgrWKniiY+SexUVd+ApooIhsoEorJ9mMg==}
+    dependencies:
+      react: 18.2.0
+      styled-components: 5.3.11(@babel/core@7.24.5)(react-dom@18.2.0)(react-is@18.3.1)(react@18.2.0)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - react-dom
+      - react-is
     dev: false
 
   /react-error-overlay@6.0.9:

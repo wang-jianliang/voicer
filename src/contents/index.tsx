@@ -5,6 +5,7 @@ import {browser} from "webextension-polyfill-ts";
 import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 import type {BrowserMessage, UserEventType} from "~type";
 import {getClientX, getClientY} from "~utils";
+import {LoopingRhombusesSpinner} from "react-epic-spinners";
 
 export const config: PlasmoCSConfig = {
   matches: ['http://*/*', 'https://*/*', '<all_urls>'],
@@ -38,7 +39,6 @@ export const getRootContainer = () =>
 
 const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
 
-  const [show, setShow] = React.useState(false);
   const [playerUrl, setPlayerUrl] = React.useState(null);
   const [text, setText] = React.useState(null);
   const iframeRef = React.useRef(null);
@@ -74,20 +74,14 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
   return (playerUrl && (
     <div
       style={{
-        // borderRadius: 4,
-        // background: "yellow",
-        // padding: 4,
         position: "fixed",
-        // top: y,
-        // left: x,
-        // width: 100,
-        // height: 100,
+        width: '100vw',
         bottom: 0,
         left: 0,
         zIndex: 100000,
       }}>
       <iframe src={playerUrl} ref={iframeRef} onLoad={requestSpeech} style={{
-        width: '100vw',
+        width: '100vw', border: 'none', margin: 0, padding: 0
       }}/>
     </div>
   ));
