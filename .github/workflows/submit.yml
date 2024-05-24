@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: 20.x
           cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install
       - name: Build the extension
         run: pnpm build
       - name: Package the extension into a zip artifact
