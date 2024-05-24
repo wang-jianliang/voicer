@@ -65,7 +65,7 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
       console.error('No text to read');
       return;
     }
-    // browser.runtime.sendMessage({command: 'requestSpeech', text: text});
+    browser.runtime.sendMessage({command: 'requestSpeech', text: text});
   }
 
   const x = lastMouseEvent ? getClientX(lastMouseEvent) : 0;
