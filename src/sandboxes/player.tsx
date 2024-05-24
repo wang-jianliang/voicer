@@ -7,7 +7,7 @@ import AudioPlayer, {
   type ProgressUI,
   type VolumeSliderPlacement
 } from "react-modern-audio-player";
-import {DEBUG} from "~constants";
+import {DEBUG, MESSAGE_TYPE_UPDATE_AUDIO_DATA} from "~constants";
 import {LoopingRhombusesSpinner} from "react-epic-spinners";
 
 function Player() {
@@ -30,14 +30,14 @@ function Player() {
   const [activeUI, setActiveUI] = useState<ActiveUI>({all: true});
 
   window.addEventListener("message", (event) => {
-    if (event.data) {
+    if (event.data && event.data.command === MESSAGE_TYPE_UPDATE_AUDIO_DATA) {
       console.log("event.data", event)
-      if (!event.data) {
+      if (!event.data.data) {
         setPlayList([]);
         return;
       }
 
-      const audioData = new Uint8Array(event.data).buffer;
+      const audioData = new Uint8Array(event.data.data).buffer;
       const audioUrl = !DEBUG ? URL.createObjectURL(new Blob([audioData], {type: 'audio/mpeg'})) :
         'https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3';
       setPlayList([
@@ -76,7 +76,7 @@ function Player() {
               width
             }}
           />
-        ) : <LoopingRhombusesSpinner color='blue' size={20}/>}
+        ) : <LoopingRhombusesSpinner color='orange' size={32} style={{backgroundColor: 'white'}}/>}
       </div>
   );
 }

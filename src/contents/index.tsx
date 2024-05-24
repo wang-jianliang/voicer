@@ -2,7 +2,7 @@ import type {PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoCSUIProps, PlasmoRend
 import React, {type FC} from "react"
 import {createRoot} from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
-import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
+import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_UPDATE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 import type {BrowserMessage, UserEventType} from "~type";
 import {getClientX, getClientY} from "~utils";
 import {LoopingRhombusesSpinner} from "react-epic-spinners";
@@ -40,7 +40,6 @@ export const getRootContainer = () =>
 const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
 
   const [playerUrl, setPlayerUrl] = React.useState(null);
-  const [text, setText] = React.useState(null);
   const iframeRef = React.useRef(null);
 // Function called when a new message is received
   const messagesFromContextMenu = async (msg: BrowserMessage) => {
@@ -49,9 +48,10 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
     if (msg.type === MESSAGE_TYPE_MENU_CLICKED) {
       console.log(`menu ${msg} is clicked`);
       setPlayerUrl(msg.data.playerUrl);
-      setText(msg.data.text);
+      iframeRef.current?.contentWindow.postMessage({command: MESSAGE_TYPE_UPDATE_AUDIO_DATA, data: null}, '*');
+      requestSpeech(msg.data.text);
     } else if (msg.type === MESSAGE_TYPE_AUDIO_DATA && iframeRef.current) {
-      iframeRef.current.contentWindow.postMessage(msg.data, '*');
+      iframeRef.current.contentWindow.postMessage({command: MESSAGE_TYPE_UPDATE_AUDIO_DATA, data: msg.data}, '*');
     }
   };
 
@@ -60,12 +60,12 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
    */
   browser.runtime.onMessage.addListener(messagesFromContextMenu);
 
-  const requestSpeech = () => {
+  const requestSpeech = (text: string) => {
     if (!text) {
       console.error('No text to read');
       return;
     }
-    browser.runtime.sendMessage({command: 'requestSpeech', text: text});
+    // browser.runtime.sendMessage({command: 'requestSpeech', text: text});
   }
 
   const x = lastMouseEvent ? getClientX(lastMouseEvent) : 0;
@@ -80,7 +80,7 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
         left: 0,
         zIndex: 100000,
       }}>
-      <iframe src={playerUrl} ref={iframeRef} onLoad={requestSpeech} style={{
+      <iframe src={playerUrl} ref={iframeRef} style={{
         width: '100vw', border: 'none', margin: 0, padding: 0
       }}/>
     </div>
