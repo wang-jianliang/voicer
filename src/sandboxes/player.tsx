@@ -80,7 +80,7 @@ function Player() {
               width
             }}
           />
-        ) : <LoopingRhombusesSpinner color='orange' size={32} style={{backgroundColor: 'white'}}/>}
+        ) : <LoopingRhombusesSpinner color='orange' size={32} />}
       </div>
   );
 }
