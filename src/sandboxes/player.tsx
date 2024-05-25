@@ -43,7 +43,7 @@ function Player() {
         'https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3';
       setPlayList([
         {
-          name: 'Read Aloud',
+          name: 'Voicer',
           writer: data.name,
           img: '../assets/icon512.png',
           src: audioUrl,

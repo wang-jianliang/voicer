@@ -1,6 +1,6 @@
 {
-  "name": "reader",
-  "displayName": "Read Aloud",
+  "name": "voicer",
+  "displayName": "Voicer",
   "version": "0.0.1",
   "description": "An extension that reads aloud your selected text",
   "author": "jianliangw1@gmail.com",
