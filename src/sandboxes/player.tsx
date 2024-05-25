@@ -27,7 +27,10 @@ function Player() {
   >();
   const [theme, setTheme] = useState<"dark" | "light" | undefined>();
   const [width, setWidth] = useState("100%");
-  const [activeUI, setActiveUI] = useState<ActiveUI>({all: true});
+  const [activeUI, setActiveUI] = useState<ActiveUI>({
+    all: true,
+    playList: false,
+  });
 
   window.addEventListener("message", (event) => {
     if (event.data && event.data.command === MESSAGE_TYPE_UPDATE_AUDIO_DATA) {
