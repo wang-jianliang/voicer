@@ -80,7 +80,7 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
       style={{
       }}>
       <iframe src={playerUrl} ref={iframeRef} style={{
-        width: '100vw', border: 'none', margin: 0, padding: 0, height: 200, position: 'fixed', bottom: 0, left: 0,
+        width: 'calc(100vw - 17px)', border: 'none', margin: 0, padding: 0, height: 200, position: 'fixed', bottom: 0, left: 0,
         zIndex: 100000,
       }}/>
     </div>

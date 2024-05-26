@@ -34,6 +34,7 @@ function Player() {
   const [activeUI, setActiveUI] = useState<ActiveUI>({
     all: true,
     playList: false,
+    prevNnext: false,
   });
 
   window.addEventListener("message", (event) => {
