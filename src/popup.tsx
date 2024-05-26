@@ -17,10 +17,9 @@ function IndexPopup() {
         padding: 16
       }}>
       <h1>
-        Welcome to your <a href="https://www.plasmo.com">Plasmo</a> Extension!
+        Welcome to voicer!
       </h1>
-      <input onChange={(e) => setData(e.target.value)} value={data} />
-      <footer>Popup</footer>
+      <footer>voicer</footer>
     </div>
   )
 }

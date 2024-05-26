@@ -12,7 +12,7 @@ if (!DEBUG) {
 }
 
 export const config: PlasmoCSConfig = {
-  matches: ['http://*/*', 'https://*/*', '<all_urls>'],
+  matches: ["http://*/*", "https://*/*"]
 }
 
 let lastMouseEvent: UserEventType | undefined;

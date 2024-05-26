@@ -16,7 +16,7 @@ function IndexOptions() {
         padding: 16
       }}>
       <h1>
-        Welcome to your voicer!
+        Welcome to voicer!
       </h1>
     </div>
   )
