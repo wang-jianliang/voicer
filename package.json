@@ -2,7 +2,7 @@
   "name": "voicer",
   "displayName": "Voicer",
   "version": "0.0.1",
-  "description": "Voicer is a browser plugin that brings your selected web text to life through speech. With Voicer, simply highlight any text on a webpage, right-click, and select the “Read this” option from the context menu. Within moments, Voicer converts the chosen text into natural-sounding speech and presents a sleek playback interface at the bottom of your screen.\nBy clicking the play button in the interface, you can listen to the text being read aloud, providing a seamless and efficient way to consume web content audibly.",
+  "description": "Voicer is a browser plugin that brings your selected web text to life through speech using TTS(Text To Speech) technology.",
   "author": "jianliangw1@gmail.com",
   "scripts": {
     "dev": "plasmo dev",
