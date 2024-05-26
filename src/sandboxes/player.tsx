@@ -10,6 +10,10 @@ import AudioPlayer, {
 import {DEBUG, MESSAGE_TYPE_UPDATE_AUDIO_DATA} from "~constants";
 import {LoopingRhombusesSpinner} from "react-epic-spinners";
 
+if (!DEBUG) {
+  console.log = () => {}
+}
+
 function Player() {
   const [playList, setPlayList] = useState([]);
   const [progressType, setProgressType] = useState<ProgressUI>("waveform");

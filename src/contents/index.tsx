@@ -2,10 +2,14 @@ import type {PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoCSUIProps, PlasmoRend
 import React, {type FC} from "react"
 import {createRoot} from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
-import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_UPDATE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
+import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_UPDATE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED, DEBUG} from "~constants";
 import type {BrowserMessage, UserEventType} from "~type";
 import {getClientX, getClientY} from "~utils";
-import {LoopingRhombusesSpinner} from "react-epic-spinners";
+import * as process from "process";
+
+if (!DEBUG) {
+  console.log = () => {}
+}
 
 export const config: PlasmoCSConfig = {
   matches: ['http://*/*', 'https://*/*', '<all_urls>'],
@@ -74,14 +78,10 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
   return (playerUrl && (
     <div
       style={{
-        position: "fixed",
-        width: '100vw',
-        bottom: 0,
-        left: 0,
-        zIndex: 100000,
       }}>
       <iframe src={playerUrl} ref={iframeRef} style={{
-        width: '100vw', border: 'none', margin: 0, padding: 0, height: 200
+        width: '100vw', border: 'none', margin: 0, padding: 0, height: 200, position: 'fixed', bottom: 0, left: 0,
+        zIndex: 100000,
       }}/>
     </div>
   ));
@@ -92,6 +92,8 @@ export const render: PlasmoRender<PlasmoCSUIJSXContainer> = async ({
                                                                    }) => {
   const rootContainer = await createRootContainer()
   console.log("rootContainer", rootContainer)
+  console.log("env all:", process.env)
+  console.log("node env:", process.env.DEBUG)
   const root = createRoot(rootContainer)
   root.render(<PlasmoOverlay/>)
 }

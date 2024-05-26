@@ -1,6 +1,10 @@
 import {browser} from 'webextension-polyfill-ts';
 import {DEBUG, MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
 
+if (!DEBUG) {
+  console.log = () => {}
+}
+
 const MENU_ITEM_ID_SELECTION = 'selection'
 const reader = {
   name: 'Microsoft Server Speech Text to Speech Voice (en-US, JennyMultilingualNeural)', display: 'Jenny'

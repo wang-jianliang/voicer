@@ -1,4 +1,9 @@
 import { useState } from "react"
+import {DEBUG} from "~constants";
+
+if (!DEBUG) {
+  console.log = () => {}
+}
 
 function IndexOptions() {
   const [data, setData] = useState("")
