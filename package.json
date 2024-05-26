@@ -32,7 +32,6 @@
       "https://*/*"
     ],
     "permissions": [
-      "tabs",
       "contextMenus"
     ],
     "web_accessible_resources": [
