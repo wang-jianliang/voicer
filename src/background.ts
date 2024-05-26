@@ -1,5 +1,5 @@
 import {browser} from 'webextension-polyfill-ts';
-import {DEBUG, MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED} from "~constants";
+import {DEBUG, MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED, TTS_API_TOKEN, TTS_API_URL} from "~constants";
 
 if (!DEBUG) {
   console.log = () => {}
@@ -11,11 +11,11 @@ const reader = {
 };
 
 function requestSpeech(text: string, onLoaded: (audioData: ArrayBuffer) => void) {
-  return fetch('https://reader-api.wangjianliang0.workers.dev/api/v1', {
+  return fetch(TTS_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer 5c1d3dce69b12976105fa1ef8b513769f1959672ec8759cfb22099f41e5837f3'
+      'Authorization': `Bearer ${TTS_API_TOKEN}`
     },
     body: JSON.stringify({
       name: reader.name,
