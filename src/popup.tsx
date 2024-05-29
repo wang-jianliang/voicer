@@ -1,6 +1,16 @@
 import {DEBUG, STORAGE_KEY_VOICE_MODEL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
 import {useStorage} from "@plasmohq/storage/dist/hook";
-import {Avatar, ComboBox, defaultTheme, Flex, Image, Item, Provider, useAsyncList} from "@adobe/react-spectrum";
+import {
+  Avatar, Badge,
+  ComboBox,
+  defaultTheme,
+  Flex,
+  Image,
+  Item,
+  Provider, Text, Tooltip,
+  TooltipTrigger,
+  useAsyncList
+} from "@adobe/react-spectrum";
 import type {VoiceModel} from "~type";
 import AudioPlayerMini from "~components/AudioPlayerMini";
 
@@ -44,8 +54,9 @@ function IndexPopup() {
         <h1>Welcome to Voicer</h1>
       </Flex>
       { voiceModel && <Flex direction="column" gap="size-200" alignItems="center">
-        <AudioPlayerMini src="https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3"/>
-        <div>{voiceModel.Name}</div>
+          <AudioPlayerMini src="https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3"/>
+          <div>{voiceModel.Name}</div>
+          <Badge alignSelf="flex-start" variant="indigo">{voiceModel.Gender}</Badge>
       </Flex>}
       <ComboBox
         width="100%"
@@ -61,7 +72,11 @@ function IndexPopup() {
           return selectedVoice;
         })}
       >
-        {(item) => <Item key={item.Name}>{item.Name}</Item>}
+        {(item) =>
+          <Item key={item.Name}>
+            {`${item.ShortName} (${item.Gender})`}
+          </Item>
+        }
       </ComboBox>
     </Provider>
   )
