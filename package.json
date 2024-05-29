@@ -10,6 +10,8 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@adobe/react-spectrum": "^3.35.1",
+    "@plasmohq/storage": "^1.10.0",
     "plasmo": "0.86.3",
     "prop-types": "^15.8.1",
     "react": "18.2.0",
