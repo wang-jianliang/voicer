@@ -1,23 +1,15 @@
-import {useEffect, useState} from "react"
-import {DEBUG, TTS_API_TOKEN, TTS_API_URL} from "~constants";
+import {DEBUG, STORAGE_KEY_VOICE_MODEL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
 import {useStorage} from "@plasmohq/storage/dist/hook";
-import { Storage } from "@plasmohq/storage"
-import {ComboBox, defaultTheme, Item, Provider, useAsyncList} from "@adobe/react-spectrum";
+import {Avatar, ComboBox, defaultTheme, Flex, Image, Item, Provider, useAsyncList} from "@adobe/react-spectrum";
 import type {VoiceModel} from "~type";
+import AudioPlayerMini from "~components/AudioPlayerMini";
 
 if (!DEBUG) {
   console.log = () => {}
 }
 
 function IndexPopup() {
-  const [voices, setVoices] = useState([] as any[])
-  const [voiceModelName, setVoiceModelName] = useState<any>()
-  const [voiceModel, setVoiceModel] = useStorage<VoiceModel>({
-    key: "settings-voice-name",
-    instance: new Storage({
-      area: "local"
-    })
-  });
+  const [voiceModel, setVoiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
 
   let list = useAsyncList<VoiceModel>({
     async load({ signal, cursor, filterText }) {
@@ -39,36 +31,22 @@ function IndexPopup() {
         });
 
       return {
-        items: voicesData.filter((item) => item.Name.toLowerCase().includes(filterText.toLowerCase())),
+        items: voicesData, // voicesData.filter((item) => item.Name.toLowerCase().includes(filterText.toLowerCase())),
         cursor: null
       };
     }
   });
 
-  useEffect(() => {
-    console.log('fetching voices')
-    fetch(TTS_API_URL + "/voices/list", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + TTS_API_TOKEN
-      }
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('voices:', data)
-        setVoices(data)
-      })
-      .catch((error) => {
-        alert(`Error fetching voices ${error}`)
-        console.error('Error:', error)
-      });
-  }, []);
-
   return (
-    <Provider theme={defaultTheme} width={350}>
-      <h1>Welcome to Voicer</h1>
-      <div>{voiceModelName}</div>
+    <Provider theme={defaultTheme} width={350} height={300}>
+      <Flex direction="column" gap="size-100" alignItems="center">
+        <Avatar src={chrome.runtime.getURL("../assets/icon128.png")} alt="Voicer" size='avatar-size-700' marginTop={20}/>
+        <h1>Welcome to Voicer</h1>
+      </Flex>
+      { voiceModel && <Flex direction="column" gap="size-200" alignItems="center">
+        <AudioPlayerMini src="https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3"/>
+        <div>{voiceModel.Name}</div>
+      </Flex>}
       <ComboBox
         width="100%"
         label="Select a voice"
@@ -77,7 +55,11 @@ function IndexPopup() {
         onInputChange={list.setFilterText}
         loadingState={list.loadingState}
         onLoadMore={list.loadMore}
-        onSelectionChange={(id) => setVoiceModelName(id)}
+        onSelectionChange={(id) => setVoiceModel(() => {
+          const selectedVoice = list.items.find((item) => item.Name === id)
+          console.log('selected voice:', selectedVoice)
+          return selectedVoice;
+        })}
       >
         {(item) => <Item key={item.Name}>{item.Name}</Item>}
       </ComboBox>

@@ -4,6 +4,8 @@ export const MESSAGE_TYPE_MENU_CLICKED = 'menu_clicked';
 export const MESSAGE_TYPE_AUDIO_DATA = 'audioData';
 export const MESSAGE_TYPE_UPDATE_AUDIO_DATA = 'updateAudioData';
 
+export const STORAGE_KEY_VOICE_MODEL = 'settings-voice-model';
+
 export const DEBUG = false;
 
 export const TTS_API_URL = 'https://tts.hellogeek.work/api/v1';

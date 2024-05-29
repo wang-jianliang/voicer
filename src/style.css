@@ -13,3 +13,8 @@
   text-decoration: none;
   width: 100%;
 }
+
+.audio-player-mini-wrapper {
+  box-shadow: 0px 0px 10px 5px rgba(0,0,0,0.2);
+  border-radius: 10px;
+}

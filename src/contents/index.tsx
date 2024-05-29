@@ -2,14 +2,26 @@ import type {PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoCSUIProps, PlasmoRend
 import React, {type FC} from "react"
 import {createRoot} from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
-import {MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_UPDATE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED, DEBUG} from "~constants";
-import type {BrowserMessage, UserEventType} from "~type";
+import {
+  MESSAGE_TYPE_AUDIO_DATA,
+  MESSAGE_TYPE_UPDATE_AUDIO_DATA,
+  MESSAGE_TYPE_MENU_CLICKED,
+  DEBUG,
+  STORAGE_KEY_VOICE_MODEL
+} from "~constants";
+import type {BrowserMessage, UserEventType, VoiceModel} from "~type";
 import {getClientX, getClientY} from "~utils";
 import * as process from "process";
+import {useStorage} from "@plasmohq/storage/dist/hook";
 
 if (!DEBUG) {
   console.log = () => {}
 }
+
+const defaultVoiceModel = {
+  Name: 'Microsoft Server Speech Text to Speech Voice (en-US, JennyMultilingualNeural)',
+  DisplayName: 'Jenny'
+};
 
 export const config: PlasmoCSConfig = {
   matches: ["http://*/*", "https://*/*"]
@@ -45,6 +57,8 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
 
   const [playerUrl, setPlayerUrl] = React.useState(null);
   const iframeRef = React.useRef(null);
+
+  const [voiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
 // Function called when a new message is received
   const messagesFromContextMenu = async (msg: BrowserMessage) => {
     console.log('[content.js]. Message received', msg);
@@ -69,7 +83,8 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
       console.error('No text to read');
       return;
     }
-    browser.runtime.sendMessage({command: 'requestSpeech', text: text});
+    console.log('voiceModel:', voiceModel);
+    browser.runtime.sendMessage({command: 'requestSpeech', text: text, voiceModel: (voiceModel || defaultVoiceModel)});
   }
 
   const x = lastMouseEvent ? getClientX(lastMouseEvent) : 0;

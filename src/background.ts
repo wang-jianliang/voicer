@@ -1,16 +1,14 @@
 import {browser} from 'webextension-polyfill-ts';
 import {DEBUG, MESSAGE_TYPE_AUDIO_DATA, MESSAGE_TYPE_MENU_CLICKED, TTS_API_TOKEN, TTS_API_URL} from "~constants";
+import type {VoiceModel} from "~type";
 
 if (!DEBUG) {
   console.log = () => {}
 }
 
 const MENU_ITEM_ID_SELECTION = 'selection'
-const reader = {
-  name: 'Microsoft Server Speech Text to Speech Voice (en-US, JennyMultilingualNeural)', display: 'Jenny'
-};
 
-function requestSpeech(text: string, onLoaded: (audioData: ArrayBuffer) => void) {
+function requestSpeech(text: string, voiceModel: VoiceModel, onLoaded: (audioData: ArrayBuffer) => void) {
   return fetch(TTS_API_URL, {
     method: 'POST',
     headers: {
@@ -18,7 +16,7 @@ function requestSpeech(text: string, onLoaded: (audioData: ArrayBuffer) => void)
       'Authorization': `Bearer ${TTS_API_TOKEN}`
     },
     body: JSON.stringify({
-      name: reader.name,
+      name: voiceModel.Name,
       text: text,
     })
   })
@@ -57,7 +55,7 @@ browser.contextMenus?.onClicked.addListener(async function (info) {
   }
 });
 
-browser.runtime.onMessage.addListener(async ({ command, text }) => {
+browser.runtime.onMessage.addListener(async ({ command, text, voiceModel }) => {
   const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
   console.log('[background.js]', 'onMessage', command, text);
   if (command === 'requestSpeech') {
@@ -67,9 +65,10 @@ browser.runtime.onMessage.addListener(async ({ command, text }) => {
       await browser.tabs.sendMessage(tab.id, {type: MESSAGE_TYPE_AUDIO_DATA, data: new Uint8Array(1000)});
       return;
     }
-    return requestSpeech(text, audioData => {
+    return requestSpeech(text, voiceModel, audioData => {
       const audioArray = Array.from(new Uint8Array(audioData));
-      browser.tabs.sendMessage(tab.id, { type: MESSAGE_TYPE_AUDIO_DATA, data: {audioData: audioArray, name: reader.display}});
+      console.log('sending audio data:', voiceModel);
+      browser.tabs.sendMessage(tab.id, { type: MESSAGE_TYPE_AUDIO_DATA, data: {audioData: audioArray, name: voiceModel.DisplayName}});
     });
   }
   return Promise.resolve();

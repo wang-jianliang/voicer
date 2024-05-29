@@ -9,6 +9,9 @@ import AudioPlayer, {
 } from "react-modern-audio-player";
 import {DEBUG, MESSAGE_TYPE_UPDATE_AUDIO_DATA} from "~constants";
 import {LoopingRhombusesSpinner} from "react-epic-spinners";
+import {useStorage} from "@plasmohq/storage/dist/hook";
+import type {VoiceModel} from "~type";
+import {Storage} from "@plasmohq/storage";
 
 if (!DEBUG) {
   console.log = () => {}
