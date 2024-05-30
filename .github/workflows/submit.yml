@@ -23,8 +23,6 @@ jobs:
         with:
           node-version: 20.x
           cache: "pnpm"
-      - name: Install sharp
-        run: npm i sharp --save
       - name: Install dependencies
         run: pnpm install
       - name: Build the extension
