@@ -1,7 +1,7 @@
 import {DEBUG, STORAGE_KEY_VOICE_MODEL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
 import {useStorage} from "@plasmohq/storage/dist/hook";
 import {
-  Avatar, Badge,
+  Avatar, Badge, Button,
   ComboBox,
   defaultTheme,
   Flex,
@@ -13,6 +13,8 @@ import {
 } from "@adobe/react-spectrum";
 import type {VoiceModel} from "~type";
 import AudioPlayerMini from "~components/AudioPlayerMini";
+import {requestSpeech} from "~TTSService";
+import {useState} from "react";
 
 if (!DEBUG) {
   console.log = () => {}
@@ -20,6 +22,7 @@ if (!DEBUG) {
 
 function IndexPopup() {
   const [voiceModel, setVoiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
+  const [audioUrl, setAudioUrl] = useState(null);
 
   let list = useAsyncList<VoiceModel>({
     async load({ signal, cursor, filterText }) {
@@ -47,17 +50,43 @@ function IndexPopup() {
     }
   });
 
+  const handleTryVoice = async () => {
+    console.log('try voice:', voiceModel)
+    requestSpeech('Hello, world!', voiceModel, (audioData) => {
+      console.log('audio data:', audioData);
+      const audioUrl = URL.createObjectURL(new Blob([audioData], {type: 'audio/mpeg'}));
+      console.log('audio url:', audioUrl);
+      setAudioUrl(audioUrl);
+    });
+  }
+
+  const handleSelectionChange = async (id) => {
+    console.log('selected voice id:', id)
+    setAudioUrl(null);
+    await setVoiceModel(() => {
+      const selectedVoice = list.items.find((item) => item.Name === id)
+      console.log('selected voice:', selectedVoice)
+      return selectedVoice;
+    })
+  }
+
   return (
-    <Provider theme={defaultTheme} width={350} height={300}>
+    <Provider theme={defaultTheme} width={450} height={300}>
       <Flex direction="column" gap="size-100" alignItems="center">
         <Avatar src={chrome.runtime.getURL("../assets/icon128.png")} alt="Voicer" size='avatar-size-700' marginTop={20}/>
         <h1>Welcome to Voicer</h1>
       </Flex>
-      { voiceModel && <Flex direction="column" gap="size-200" alignItems="center">
-          <AudioPlayerMini src="https://cdn.pixabay.com/audio/2022/08/23/audio_d16737dc28.mp3"/>
-          <div>{voiceModel.Name}</div>
-          <Badge alignSelf="flex-start" variant="indigo">{voiceModel.Gender}</Badge>
-      </Flex>}
+      { voiceModel &&
+          <Flex direction="column" gap="size-200" alignItems="center">
+            { audioUrl && <AudioPlayerMini src={audioUrl}/> }
+            <Flex direction="row" gap="size-100" alignItems="center" justifyContent='center'>
+              <Flex direction={'row'} gap="size-100" alignItems="center">
+                <Badge variant="indigo">{voiceModel.Gender}</Badge>
+                <div>{voiceModel.Name}</div>
+              </Flex>
+              <Button variant='primary' onPress={handleTryVoice} >try</Button>
+            </Flex>
+          </Flex>}
       <ComboBox
         width="100%"
         label="Select a voice"
@@ -66,11 +95,7 @@ function IndexPopup() {
         onInputChange={list.setFilterText}
         loadingState={list.loadingState}
         onLoadMore={list.loadMore}
-        onSelectionChange={(id) => setVoiceModel(() => {
-          const selectedVoice = list.items.find((item) => item.Name === id)
-          console.log('selected voice:', selectedVoice)
-          return selectedVoice;
-        })}
+        onSelectionChange={handleSelectionChange}
       >
         {(item) =>
           <Item key={item.Name}>
