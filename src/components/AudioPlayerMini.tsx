@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
-import PlayCircle from "@spectrum-icons/workflow/PlayCircle";
-import PauseCircle from "@spectrum-icons/workflow/PauseCircle";
+import PlayCircle from '@spectrum-icons/workflow/PlayCircle';
+import PauseCircle from '@spectrum-icons/workflow/PauseCircle';
 
 function AudioPlayerMini({src}) {
   const [playing, setPlaying] = useState(false);
@@ -33,10 +33,10 @@ function AudioPlayerMini({src}) {
 
   return (
     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-      <div onClick={togglePlay} style={{ height: "19px" }}>
-        {playing ? <PauseCircle size="S"/> : <PlayCircle size="S"/>}
+      <div onClick={togglePlay} style={{ height: "25px" }}>
+        {playing ? <PauseCircle size="M"/> : <PlayCircle size="M"/>}
       </div>
-      <progress value={progress} max="100" style={{flex: 1, marginLeft: '3px'}}/>
+      <progress value={progress} max="100" style={{flex: 1, marginLeft: '5px'}}/>
       <audio src={src} ref={audioRef} style={{display: 'none'}}/>
     </div>
   );

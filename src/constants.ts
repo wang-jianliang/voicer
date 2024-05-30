@@ -10,3 +10,5 @@ export const DEBUG = false;
 
 export const TTS_API_URL = 'https://tts.hellogeek.work/api/v1';
 export const TTS_API_TOKEN = '5c1d3dce69b12976105fa1ef8b513769f1959672ec8759cfb22099f41e5837f3'
+
+export const SAMPLE_TEXT = 'Welcome to Voicer!';
