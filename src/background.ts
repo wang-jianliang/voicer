@@ -32,7 +32,7 @@ browser.contextMenus?.onClicked.addListener(async function (info) {
 
 browser.runtime.onMessage.addListener(async ({ command, text, voiceModel }) => {
   const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
-  console.log('[background.js]', 'onMessage', command, text);
+  console.log('[background.js]', 'onMessage', command, text, voiceModel);
   if (command === 'requestSpeech') {
     if (DEBUG) {
       // sleep for 10 seconds to simulate long-running task

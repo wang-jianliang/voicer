@@ -1,5 +1,5 @@
 import type {PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoCSUIProps, PlasmoRender} from "plasmo"
-import React, {type FC} from "react"
+import React, {useEffect, type FC} from "react"
 import {createRoot} from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
 import {
@@ -67,7 +67,7 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
       console.log(`menu ${msg} is clicked`);
       setPlayerUrl(msg.data.playerUrl);
       iframeRef.current?.contentWindow.postMessage({command: MESSAGE_TYPE_UPDATE_AUDIO_DATA, data: null}, '*');
-      requestSpeech(msg.data.text);
+      requestSpeech(msg.data.text, voiceModel);
     } else if (msg.type === MESSAGE_TYPE_AUDIO_DATA && iframeRef.current) {
       iframeRef.current.contentWindow.postMessage({command: MESSAGE_TYPE_UPDATE_AUDIO_DATA, data: msg.data}, '*');
     }
@@ -76,15 +76,24 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
   /**
    * Fired when a message is sent from either an extension process or a content script.
    */
-  browser.runtime.onMessage.addListener(messagesFromContextMenu);
+  useEffect(() => {
+    if (!voiceModel) {
+      console.log('No voice model selected');
+      return;
+    }
+    browser.runtime.onMessage.addListener(messagesFromContextMenu);
+    return () => {
+      browser.runtime.onMessage.removeListener(messagesFromContextMenu);
+    }
+  }, [voiceModel]);
 
-  const requestSpeech = (text: string) => {
+  const requestSpeech = (text: string, model: VoiceModel) => {
     if (!text) {
       console.error('No text to read');
       return;
     }
-    console.log('voiceModel:', voiceModel);
-    browser.runtime.sendMessage({command: 'requestSpeech', text: text, voiceModel: (voiceModel || defaultVoiceModel)});
+    console.log('voiceModel:', model);
+    browser.runtime.sendMessage({command: 'requestSpeech', text: text, voiceModel: model});
   }
 
   const x = lastMouseEvent ? getClientX(lastMouseEvent) : 0;
