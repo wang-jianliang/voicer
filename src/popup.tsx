@@ -39,6 +39,13 @@ function IndexPopup() {
         .then((response) => response.json())
         .then((data) => {
           console.log('voices:', data)
+          data.push({
+            Name: 'ChatTTS',
+            ShortName: 'ChatTTS',
+            DisplayName: 'ChatTTS',
+            Gender: 'Famale',
+          });
+
           return data;
         })
         .catch((error) => {
@@ -58,7 +65,8 @@ function IndexPopup() {
     setLoading(true);
     requestSpeech(SAMPLE_TEXT, voiceModel, (audioData) => {
       console.log('audio data:', audioData);
-      const audioUrl = URL.createObjectURL(new Blob([audioData], {type: 'audio/mpeg'}));
+      const dataType = voiceModel.Name === 'ChatTTS' ? 'audio/wav' : 'audio/mpeg';
+      const audioUrl = URL.createObjectURL(new Blob([audioData], {type: dataType}));
       console.log('audio url:', audioUrl);
       setAudioUrl(audioUrl);
       setLoading(false);

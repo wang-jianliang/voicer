@@ -1,9 +1,10 @@
 import type {VoiceModel} from "~type";
-import {TTS_API_TOKEN, TTS_API_URL} from "~constants";
+import {CHATTTS_API_URL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
 
 export async function requestSpeech(text: string, voiceModel: VoiceModel, onLoaded: (audioData: ArrayBuffer) => void) {
   try {
-    const response = await fetch(TTS_API_URL, {
+    const url = voiceModel.Name === 'ChatTTS' ? CHATTTS_API_URL : TTS_API_URL;
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
