@@ -67,7 +67,7 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
       console.log(`menu ${msg} is clicked`);
       setPlayerUrl(msg.data.playerUrl);
       iframeRef.current?.contentWindow.postMessage({command: MESSAGE_TYPE_UPDATE_AUDIO_DATA, data: null}, '*');
-      requestSpeech(msg.data.text, voiceModel);
+      requestSpeech(msg.data.text, voiceModel || defaultVoiceModel);
     } else if (msg.type === MESSAGE_TYPE_AUDIO_DATA && iframeRef.current) {
       iframeRef.current.contentWindow.postMessage({command: MESSAGE_TYPE_UPDATE_AUDIO_DATA, data: msg.data}, '*');
     }
