@@ -77,15 +77,11 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
    * Fired when a message is sent from either an extension process or a content script.
    */
   useEffect(() => {
-    if (!voiceModel) {
-      console.log('No voice model selected');
-      return;
-    }
     browser.runtime.onMessage.addListener(messagesFromContextMenu);
     return () => {
       browser.runtime.onMessage.removeListener(messagesFromContextMenu);
     }
-  }, [voiceModel]);
+  }, [messagesFromContextMenu]);
 
   const requestSpeech = (text: string, model: VoiceModel) => {
     if (!text) {
