@@ -1,21 +1,38 @@
 import React, {useState} from 'react';
 import AudioPlayer, {
   type ActiveUI,
+  type AudioPlayerStateContext,
   type InterfaceGridTemplateArea,
   type PlayerPlacement,
   type PlayListPlacement,
   type ProgressUI,
   type VolumeSliderPlacement
 } from "react-modern-audio-player";
-import {DEBUG, MESSAGE_TYPE_UPDATE_AUDIO_DATA} from "~constants";
+import {DEBUG, EVENT_SOURCE_PLAYER, MESSAGE_TYPE_PLAYER_CLOSE, MESSAGE_TYPE_UPDATE_AUDIO_DATA} from "~constants";
 import {LoopingRhombusesSpinner} from "react-epic-spinners";
-import {useStorage} from "@plasmohq/storage/dist/hook";
-import type {VoiceModel} from "~type";
-import {Storage} from "@plasmohq/storage";
-
+import Close from '@spectrum-icons/workflow/Close';
 if (!DEBUG) {
-  console.log = () => {}
+  console.log = () => {
+  }
 }
+
+const CustomComponent = ({
+                           audioPlayerState,
+                           onClose,
+                         }: {
+  audioPlayerState?: AudioPlayerStateContext;
+  onClose?: () => void;
+}) => {
+  const audioEl = audioPlayerState?.elementRefs?.audioEl;
+  const handleClose = () => {
+    onClose && onClose();
+  }
+  return (
+    <>
+      <button style={{display: 'flex'}} onClick={handleClose}><Close></Close></button>
+    </>
+  );
+};
 
 function Player() {
   const [playList, setPlayList] = useState([]);
@@ -67,29 +84,35 @@ function Player() {
   });
 
   return (
-      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: 100}}>
-        {playList.length > 0 ? (
-          <AudioPlayer
-            playList={playList}
-            activeUI={{
-              ...activeUI,
-              progress: progressType
-            }}
-            placement={{
-              player: playerPlacement,
-              interface: {
-                templateArea: interfacePlacement
-              },
-              playList: playListPlacement,
-              volumeSlider: volumeSliderPlacement
-            }}
-            rootContainerProps={{
-              colorScheme: theme,
-              width
-            }}
-          />
-        ) : <LoopingRhombusesSpinner color='orange' size={32} />}
-      </div>
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      height: 100,
+      position: "fixed",
+      width: "100vw",
+      bottom: 0,
+      left: 0
+    }}>
+      {playList.length > 0 ? (
+        <AudioPlayer
+          playList={playList}
+          activeUI={{
+            ...activeUI,
+            progress: progressType
+          }}
+          rootContainerProps={{
+            colorScheme: theme,
+            width
+          }}
+        >
+          <AudioPlayer.CustomComponent id="playerCustomComponent">
+            <CustomComponent onClose={() => {
+              setPlayList([]);
+              window.parent.postMessage({command: MESSAGE_TYPE_PLAYER_CLOSE, source: EVENT_SOURCE_PLAYER}, '*');
+            }}/>
+          </AudioPlayer.CustomComponent>
+        </AudioPlayer>
+      ) : <LoopingRhombusesSpinner color='orange' size={32}/>}
+    </div>
   );
 }
 

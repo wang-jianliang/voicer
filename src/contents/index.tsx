@@ -7,7 +7,7 @@ import {
   MESSAGE_TYPE_UPDATE_AUDIO_DATA,
   MESSAGE_TYPE_MENU_CLICKED,
   DEBUG,
-  STORAGE_KEY_VOICE_MODEL
+  STORAGE_KEY_VOICE_MODEL, MESSAGE_TYPE_PLAYER_CLOSE, EVENT_SOURCE_PLAYER
 } from "~constants";
 import type {BrowserMessage, UserEventType, VoiceModel} from "~type";
 import {getClientX, getClientY} from "~utils";
@@ -59,6 +59,17 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
   const iframeRef = React.useRef(null);
 
   const [voiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
+
+
+  const requestSpeech = (text: string, model: VoiceModel) => {
+    if (!text) {
+      console.error('No text to read');
+      return;
+    }
+    console.log('voiceModel:', model);
+    browser.runtime.sendMessage({command: 'requestSpeech', text: text, voiceModel: model});
+  }
+
 // Function called when a new message is received
   const messagesFromContextMenu = async (msg: BrowserMessage) => {
     console.log('[content.js]. Message received', msg);
@@ -83,14 +94,20 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
     }
   }, [messagesFromContextMenu]);
 
-  const requestSpeech = (text: string, model: VoiceModel) => {
-    if (!text) {
-      console.error('No text to read');
-      return;
+  const handleEventFromPlayer = (event: { source: any; data: { command: string; source: string }; }) => {
+    if (event.data && event.data.source == EVENT_SOURCE_PLAYER && event.data.command === MESSAGE_TYPE_PLAYER_CLOSE) {
+      console.log('close event from player:', event.data, event.source)
+      setPlayerUrl(null);
     }
-    console.log('voiceModel:', model);
-    browser.runtime.sendMessage({command: 'requestSpeech', text: text, voiceModel: model});
   }
+
+  useEffect(() => {
+    // listen for messages from the player
+    window.addEventListener('message', handleEventFromPlayer);
+    return () => {
+      window.removeEventListener('message', handleEventFromPlayer);
+    }
+  }, [handleEventFromPlayer]);
 
   const x = lastMouseEvent ? getClientX(lastMouseEvent) : 0;
   const y = lastMouseEvent ? getClientY(lastMouseEvent) : 0;

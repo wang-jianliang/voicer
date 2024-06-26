@@ -3,6 +3,9 @@ export const contentContainerViewId = 'content-view-container';
 export const MESSAGE_TYPE_MENU_CLICKED = 'menu_clicked';
 export const MESSAGE_TYPE_AUDIO_DATA = 'audioData';
 export const MESSAGE_TYPE_UPDATE_AUDIO_DATA = 'updateAudioData';
+export const MESSAGE_TYPE_PLAYER_CLOSE = 'playerClose';
+
+export const EVENT_SOURCE_PLAYER = 'player';
 
 export const STORAGE_KEY_VOICE_MODEL = 'settings-voice-model';
 
