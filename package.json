@@ -1,7 +1,7 @@
 {
   "name": "voicer",
   "displayName": "Voicer",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Voicer is a browser plugin that brings your selected web text to life through speech using TTS(Text To Speech) technology.",
   "author": "jianliangw1@gmail.com",
   "scripts": {
