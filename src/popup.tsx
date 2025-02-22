@@ -1,46 +1,31 @@
-import {DEBUG, SAMPLE_TEXT, STORAGE_KEY_VOICE_MODEL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
-import {useStorage} from "@plasmohq/storage/dist/hook";
-import {
-  Avatar,
-  Badge,
-  Button,
-  ComboBox,
-  defaultTheme,
-  Flex,
-  Item,
-  ProgressCircle,
-  Provider,
-  View
-} from "@adobe/react-spectrum";
-import type {VoiceModel} from "~type";
-import AudioPlayerMini from "~components/AudioPlayerMini";
-import {requestSpeech} from "~TTSService";
-import {useEffect, useMemo, useState} from "react";
-import {LoginForm} from "~components/login-form";
+"use client"
+
+import {useState, useRef, useEffect, useMemo} from "react"
+import { Button } from "~components/ui/button"
+import { Slider } from "~components/ui/slider"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~components/ui/select"
+import { History, User, Mic, Play, Pause, Settings } from "lucide-react"
+import { cn } from "~components/lib/utils"
 import "~global.css"
+import {useStorage} from "@plasmohq/storage/dist/hook";
+import type {VoiceModel} from "~type";
+import {SAMPLE_TEXT, STORAGE_KEY_VOICE_MODEL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
+import {requestSpeech} from "~TTSService";
+import {Avatar, AvatarImage} from "~components/ui/avatar";
+import * as React from "react";
 
-if (!DEBUG) {
-  console.log = () => {
-  }
-}
-
-function IndexPopup() {
+export default function Popup() {
   const [loading, setLoading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [duration, setDuration] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
-  const [selectedLocaleName, setSelectedLocaleName] = useState('');
-  const [localeInput, setLocaleInput] = useState('');
   const [locales, setLocales] = useState<any[]>([]);
-  const filteredLocales = useMemo(() => {
-    return locales.filter((l) => l.localeName.toLowerCase().includes(localeInput.toLowerCase()));
-  }, [localeInput, locales]);
-
-  const [voiceModel, setVoiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
-  const [modelInput, setModelInput] = useState('');
+  const [locale, setLocale] = useState(null)
   const [models, setModels] = useState<VoiceModel[]>([]);
-  const filteredModels = useMemo(() => {
-    return models.filter((m) => m.ShortName.toLowerCase().includes(modelInput.toLowerCase())) &&
-      models.filter((m) => m.LocaleName === selectedLocaleName || m.LocaleName === '');
-  }, [modelInput, models, selectedLocaleName]);
+  const [filteredModels, setFilteredModels] = useState<VoiceModel[]>([]);
+  const [voiceModel, setVoiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
 
   const [audioUrl, setAudioUrl] = useState(null);
 
@@ -55,16 +40,6 @@ function IndexPopup() {
       .then((response) => response.json())
       .then((data) => {
         console.log('voices:', data)
-        data.push({
-          Name: 'ChatTTS',
-          ShortName: 'ChatTTS',
-          DisplayName: 'ChatTTS',
-          Gender: 'Famale',
-          LocalName: 'ChatTTS',
-          Locale: 'zh-CN',
-          LocaleName: 'Chinese (ChatTTS)'
-        });
-
         return data;
       })
       .catch((error) => {
@@ -75,9 +50,8 @@ function IndexPopup() {
     // map locales and remove duplicates
     const locales = voicesData.map((voice) => voice.LocaleName);
     const uniqueLocales = [...new Set(locales)];
-    setLocales(uniqueLocales.map((locale, index) => ({id: index, localeName: locale})));
+    setLocales(uniqueLocales);
     setModels(voicesData);
-    setSelectedLocaleName(voiceModel?.LocaleName || '');
   }
 
   useEffect(() => {
@@ -89,91 +63,167 @@ function IndexPopup() {
   const handleTryVoice = async () => {
     console.log('try voice:', voiceModel)
     setLoading(true);
-    requestSpeech(SAMPLE_TEXT, voiceModel, (audioData) => {
-      console.log('audio data:', audioData);
-      const dataType = voiceModel.Name === 'ChatTTS' ? 'audio/wav' : 'audio/mpeg';
-      const audioUrl = URL.createObjectURL(new Blob([audioData], {type: dataType}));
-      console.log('audio url:', audioUrl);
-      setAudioUrl(audioUrl);
-      setLoading(false);
-    });
+    if (isPlaying) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    } else {
+        requestSpeech(SAMPLE_TEXT, voiceModel, (audioData) => {
+            console.log('audio data:', audioData);
+            const dataType = 'audio/mpeg';
+            const audioUrl = URL.createObjectURL(new Blob([audioData], {type: dataType}));
+            console.log('audio url:', audioUrl);
+            setAudioUrl(audioUrl);
+            setLoading(false);
+        });
+    }
   }
 
-  const handleLocaleChange = async (localeKey) => {
-    console.log('selected locale key:', localeKey)
-    const name = locales[localeKey].localeName;
-    console.log('selected locale:', name)
-    setSelectedLocaleName(name);
+  const handleLocaleChange = async (id) => {
+    console.log('selected locale id:', id)
+    setLocale(id)
+    // update voice model list
+    await setFilteredModels(() => {
+      return models.filter((item) => item.LocaleName === id)
+    })
   }
 
-  const handleSelectionChange = async (id) => {
+  const handleVoiceChange = async (id) => {
     console.log('selected voice id:', id)
     setAudioUrl(null);
     await setVoiceModel(() => {
-      const selectedVoice = models.find((item) => item.Name === id)
+      const selectedVoice = filteredModels.find((item) => item.Name === id)
       console.log('selected voice:', selectedVoice)
       return selectedVoice;
     })
   }
 
+  useEffect(() => {
+    if (!audioUrl) {
+        return;
+    }
+    audioRef.current = new Audio(audioUrl)
+    audioRef.current.addEventListener("loadedmetadata", () => {
+      setDuration(audioRef.current?.duration || 0)
+      setLoading(false)
+    })
+    audioRef.current.addEventListener("timeupdate", () => {
+      setCurrentTime(audioRef.current?.currentTime || 0)
+    })
+    audioRef.current.addEventListener("ended", () => {
+      setIsPlaying(false)
+      setCurrentTime(0)
+    })
+    audioRef.current.play();
+    setIsPlaying(true)
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.remove()
+      }
+    }
+  }, [audioUrl])
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  }
+
+  const handleSliderChange = (value: number[]) => {
+    if (!audioRef.current) return
+    audioRef.current.currentTime = value[0]
+    setCurrentTime(value[0])
+  }
+
   return (
-    <div>
-    <Provider theme={defaultTheme} width={450} height={420}>
-      <View padding={20}>
-        <Flex direction="column" gap="size-100" alignItems="center">
-          <Avatar src={chrome.runtime.getURL("../assets/icon128.png")} alt="Voicer" size='avatar-size-700'
-                  marginTop={20}/>
-          <h1>Welcome to Voicer</h1>
-        </Flex>
-        {voiceModel &&
-            <Flex direction="column" gap="size-200" alignItems="center" margin={18}>
-              {loading ? <ProgressCircle aria-label="Loading…" isIndeterminate/> : audioUrl ?
-                <AudioPlayerMini src={audioUrl}/> :
+    <div className="w-[450px] h-[400px] mx-auto rounded-lg border bg-white py-4 px-6 shadow-sm flex flex-col">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Avatar className="w-6 h-6">
+            <AvatarImage src="../assets/icon128.png"/>
+          </Avatar>
+          <h1 className="text-xl font-semibold">Voicer</h1>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="icon">
+            <History className="h-5 w-5"/>
+          </Button>
+          <Button variant="ghost" size="icon">
+            <User className="h-5 w-5"/>
+          </Button>
+        </div>
+      </div>
+
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Settings className="h-5 w-5"/>
+          <h1 className="text-lg font-semibold">Settings</h1>
+        </div>
+      </div>
+
+
+      <div className="space-y-6 flex-grow flex flex-col justify-between">
+        <div className="grid gap-6 md:grid-cols-2 h-32">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select a Locale</label>
+            <Select value={locale} onValueChange={handleLocaleChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select locale"/>
+              </SelectTrigger>
+              <SelectContent>
+                {locales.map((locale) => (
+                  <SelectItem key={locale} value={locale}>{locale}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Select a Voice</label>
+            <Select value={voiceModel?.Name} onValueChange={handleVoiceChange} disabled={!locale}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select voice"/>
+              </SelectTrigger>
+              <SelectContent>
+                {filteredModels.map((v) => (
+                  <SelectItem key={v.Name} value={v.Name}>{v.DisplayName} ({v.Gender})</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {locale && voiceModel && (
+          <div className="h-20">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
                 <Button
-                  variant='primary' style='fill' onPress={handleTryVoice}
+                  onClick={handleTryVoice}
+                  disabled={loading}
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
                 >
-                  <div style={{fontSize: "15px"}}>try</div>
+                  {isPlaying ? <Pause className="h-4 w-4"/> : <Play className="h-4 w-4"/>}
                 </Button>
-              }
-                <Flex direction="row" gap="size-100" alignItems="center" justifyContent='center'>
-                    <Flex direction={'row'} gap="size-100" alignItems="center">
-                      {voiceModel.Gender === "Male" ? <Badge variant="indigo">{voiceModel.Gender}</Badge> :
-                        <Badge variant="purple">{voiceModel.Gender}</Badge>
-                      }
-                        <div>{voiceModel.DisplayName} - {voiceModel.LocaleName}</div>
-                    </Flex>
-                </Flex>
-            </Flex>}
-        <ComboBox
-          width="100%"
-          label="Select a locale"
-          defaultItems={filteredLocales}
-          onSelectionChange={handleLocaleChange}
-        >
-          {(item) =>
-            <Item key={item.id}>
-              {`${item.localeName}`}
-            </Item>
-          }
-        </ComboBox>
-        <ComboBox
-          width="100%"
-          label="Select a voice"
-          items={filteredModels}
-          isDisabled={!selectedLocaleName}
-          onSelectionChange={handleSelectionChange}
-        >
-          {(item) =>
-            <Item key={item.Name}>
-              {`${item.LocalName} (${item.Gender}) - ${item.LocaleName}`}
-            </Item>
-          }
-        </ComboBox>
-      </View>
-    </Provider>
-      <LoginForm/>
+
+                <div className="flex w-full items-center gap-2">
+                  <span className="w-12 text-sm tabular-nums">{formatTime(currentTime)}</span>
+                  <Slider
+                    value={[currentTime]}
+                    max={duration}
+                    step={0.1}
+                    onValueChange={handleSliderChange}
+                    className={cn("w-full", loading && "animate-pulse opacity-50")}
+                  />
+                  <span className="w-12 text-sm tabular-nums">{formatTime(duration)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
-
-export default IndexPopup
