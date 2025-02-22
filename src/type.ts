@@ -18,3 +18,9 @@ export interface VoiceModel {
   Status?: string
   WordsPerMinute?: string
 }
+
+export interface AudioInfo {
+  name: string
+  url: string
+  voice: string
+}

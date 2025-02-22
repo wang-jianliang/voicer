@@ -9,7 +9,7 @@ export const EVENT_SOURCE_PLAYER = 'player';
 
 export const STORAGE_KEY_VOICE_MODEL = 'settings-voice-model';
 
-export const DEBUG = false;
+export const DEBUG = true;
 
 export const TTS_API_URL = 'https://tts.hellogeek.work/api/v1';
 export const CHATTTS_API_URL = 'http://20.243.202.102:5000/api/v1';

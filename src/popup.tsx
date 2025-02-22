@@ -16,6 +16,8 @@ import type {VoiceModel} from "~type";
 import AudioPlayerMini from "~components/AudioPlayerMini";
 import {requestSpeech} from "~TTSService";
 import {useEffect, useMemo, useState} from "react";
+import {LoginForm} from "~components/login-form";
+import "~global.css"
 
 if (!DEBUG) {
   console.log = () => {
@@ -115,6 +117,7 @@ function IndexPopup() {
   }
 
   return (
+    <div>
     <Provider theme={defaultTheme} width={450} height={420}>
       <View padding={20}>
         <Flex direction="column" gap="size-100" alignItems="center">
@@ -168,6 +171,8 @@ function IndexPopup() {
         </ComboBox>
       </View>
     </Provider>
+      <LoginForm/>
+    </div>
   )
 }
 
