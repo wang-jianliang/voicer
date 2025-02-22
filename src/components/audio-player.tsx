@@ -133,6 +133,7 @@ export default function AudioPlayer({ audio: {name, url, voice} }: { audio: Audi
     return path
   }, [waveformData])
 
+  // @ts-ignore
   return (
     <div className="flex items-center w-full max-w-3xl bg-white rounded-lg shadow-sm border p-2 gap-4">
       <audio ref={audioRef} src={url} className="hidden" />
@@ -200,6 +201,7 @@ export default function AudioPlayer({ audio: {name, url, voice} }: { audio: Audi
                 <Button
                   key={speed}
                   variant={playbackRate === speed ? "default" : "outline"}
+                  // @ts-ignore
                   size="xs"
                   onClick={() => handleSpeedChange(speed)}
                 >

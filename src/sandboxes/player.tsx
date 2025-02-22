@@ -5,6 +5,7 @@ import AudioPlayer from "~components/audio-player";
 
 import "~global.css"
 import type {AudioInfo} from "~type";
+import LoadingAnimation from "~components/loading-animation";
 
 if (!DEBUG) {
   console.log = () => {
@@ -47,16 +48,20 @@ function Player() {
   });
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      position: "fixed",
-      width: "100vw",
-      bottom: 10,
-      left: 0
-    }}>
-      {audio ? (
+    <div>
+    {audio ? (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: "fixed",
+        width: "100vw",
+        bottom: 10,
+        left: 0
+      }}>
         <AudioPlayer audio={audio} />
-      ) : <LoopingRhombusesSpinner color='orange' size={32}/>}
+      </div>) :
+      <div style={{ marginTop: 120 }}>
+        <LoadingAnimation/>
+      </div>}
     </div>
   );
 }
