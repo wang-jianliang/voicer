@@ -1,3 +1,5 @@
+import * as process from "process";
+
 export const contentContainerViewId = 'content-view-container';
 
 export const MESSAGE_TYPE_MENU_CLICKED = 'menu_clicked';
@@ -10,7 +12,7 @@ export const EVENT_SOURCE_PLAYER = 'player';
 export const STORAGE_KEY_VOICE_MODEL = 'settings-voice-model';
 export const STORAGE_KEY_VOICE_LOCALE = 'settings-voice-locale';
 
-export const DEBUG = true;
+export const DEBUG = false;
 
 export const TTS_API_URL = 'https://tts.hellogeek.work/api/v1';
 export const CHATTTS_API_URL = 'http://20.243.202.102:5000/api/v1';

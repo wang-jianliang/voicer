@@ -168,7 +168,7 @@ export default function Popup() {
         <div className="grid gap-6 md:grid-cols-2 h-32">
           <div className="space-y-2">
             <label className="text-sm font-medium">Select a Locale</label>
-            <Select value={locale} onValueChange={handleLocaleChange} disabled={!loading}>
+            <Select value={locale} onValueChange={handleLocaleChange} disabled={loading}>
               <SelectTrigger>
                 <SelectValue placeholder="Select locale"/>
               </SelectTrigger>
@@ -182,7 +182,7 @@ export default function Popup() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Select a Voice</label>
-            <Select value={voiceModel?.Name} onValueChange={handleVoiceChange} disabled={!locale && !loading}>
+            <Select value={voiceModel?.Name} onValueChange={handleVoiceChange} disabled={!locale || loading}>
               <SelectTrigger>
                 <SelectValue placeholder="Select voice"/>
               </SelectTrigger>
