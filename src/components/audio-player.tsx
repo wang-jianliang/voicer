@@ -7,7 +7,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "~components/ui/popover"
 import {Avatar, AvatarImage} from "~components/ui/avatar";
 import type {AudioInfo} from "~type";
 
-export default function AudioPlayer({ audio: {name, url, voice} }: { audio: AudioInfo }) {
+export default function AudioPlayer(
+  { audio: {name, url, voice}, onDownload, onClose }: {
+    audio: AudioInfo,
+    onDownload?: () => void,
+    onClose?: () => void
+  }) {
   const [isPlaying, setIsPlaying] = React.useState(false)
   const [currentTime, setCurrentTime] = React.useState(0)
   const [duration, setDuration] = React.useState(0)
@@ -47,16 +52,16 @@ export default function AudioPlayer({ audio: {name, url, voice} }: { audio: Audi
     }
   }
 
-  const handleDownload = () => {
-    if (audioRef.current) {
-      const link = document.createElement("a")
-      link.href = audioRef.current.src
-      link.download = "audio.mp3"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
-  }
+  // const handleDownload = () => {
+  //   if (audioRef.current) {
+  //     const link = document.createElement("a")
+  //     link.href = audioRef.current.src
+  //     link.download = "audio.mp3"
+  //     document.body.appendChild(link)
+  //     link.click()
+  //     document.body.removeChild(link)
+  //   }
+  // }
 
   const handleSpeedChange = (speed: number) => {
     setPlaybackRate(speed)
@@ -169,7 +174,7 @@ export default function AudioPlayer({ audio: {name, url, voice} }: { audio: Audi
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDownload}>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onDownload}>
           <Download className="h-4 w-4" />
         </Button>
         <Popover>
@@ -214,7 +219,7 @@ export default function AudioPlayer({ audio: {name, url, voice} }: { audio: Audi
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={togglePlay}>
           {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
           <X className="h-4 w-4" />
         </Button>
       </div>

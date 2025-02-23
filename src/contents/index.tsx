@@ -1,5 +1,5 @@
 import type {PlasmoCSConfig, PlasmoCSUIJSXContainer, PlasmoCSUIProps, PlasmoRender} from "plasmo"
-import React, {useEffect, type FC} from "react"
+import React, {useEffect, type FC, useState} from "react"
 import {createRoot} from "react-dom/client"
 import {browser} from "webextension-polyfill-ts";
 import {
@@ -7,7 +7,7 @@ import {
   MESSAGE_TYPE_UPDATE_AUDIO_DATA,
   MESSAGE_TYPE_MENU_CLICKED,
   DEBUG,
-  STORAGE_KEY_VOICE_MODEL, MESSAGE_TYPE_PLAYER_CLOSE, EVENT_SOURCE_PLAYER
+  STORAGE_KEY_VOICE_MODEL, MESSAGE_TYPE_PLAYER_CLOSE, EVENT_SOURCE_PLAYER, MESSAGE_TYPE_DOWNLOAD_AUDIO, DEMO_AUDIO_URL
 } from "~constants";
 import type {BrowserMessage, UserEventType, VoiceModel} from "~type";
 import {getClientX, getClientY} from "~utils";
@@ -56,6 +56,7 @@ export const getRootContainer = () =>
 const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
 
   const [playerUrl, setPlayerUrl] = React.useState(null);
+  const [audioData, setAudioData] = useState(null);
   const iframeRef = React.useRef(null);
 
   const [voiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
@@ -81,6 +82,7 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
       requestSpeech(msg.data.text, voiceModel || defaultVoiceModel);
     } else if (msg.type === MESSAGE_TYPE_AUDIO_DATA && iframeRef.current) {
       iframeRef.current.contentWindow.postMessage({command: MESSAGE_TYPE_UPDATE_AUDIO_DATA, data: msg.data}, '*');
+      setAudioData(msg.data);
     }
   };
 
@@ -95,9 +97,23 @@ const PlasmoOverlay: FC<PlasmoCSUIProps> = () => {
   }, [messagesFromContextMenu]);
 
   const handleEventFromPlayer = (event: { source: any; data: { command: string; source: string }; }) => {
-    if (event.data && event.data.source == EVENT_SOURCE_PLAYER && event.data.command === MESSAGE_TYPE_PLAYER_CLOSE) {
-      console.log('close event from player:', event.data, event.source)
-      setPlayerUrl(null);
+    if (event.data && event.data.source == EVENT_SOURCE_PLAYER) {
+      if (event.data.command === MESSAGE_TYPE_PLAYER_CLOSE) {
+        console.log('close event from player:', event.data, event.source)
+        setPlayerUrl(null);
+      } else if (event.data.command === MESSAGE_TYPE_DOWNLOAD_AUDIO) {
+        console.log("download event from player:", event.source)
+        const audioUrl = !DEBUG ? URL.createObjectURL(
+          new Blob([audioData], {type: 'audio/mpeg'})
+        ) : DEMO_AUDIO_URL;
+        const link = document.createElement("a")
+        link.href = audioUrl
+        link.target = '__blank'
+        link.download = "audio.mp3"
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     }
   }
 
