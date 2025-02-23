@@ -44,25 +44,6 @@ export default function AudioPlayer(
     }
   }
 
-  const toggleMute = () => {
-    if (volume > 0) {
-      handleVolumeChange([0])
-    } else {
-      handleVolumeChange([prevVolume])
-    }
-  }
-
-  // const handleDownload = () => {
-  //   if (audioRef.current) {
-  //     const link = document.createElement("a")
-  //     link.href = audioRef.current.src
-  //     link.download = "audio.mp3"
-  //     document.body.appendChild(link)
-  //     link.click()
-  //     document.body.removeChild(link)
-  //   }
-  // }
-
   const handleSpeedChange = (speed: number) => {
     setPlaybackRate(speed)
     if (audioRef.current) {
