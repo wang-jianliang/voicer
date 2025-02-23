@@ -8,6 +8,7 @@ export const MESSAGE_TYPE_PLAYER_CLOSE = 'playerClose';
 export const EVENT_SOURCE_PLAYER = 'player';
 
 export const STORAGE_KEY_VOICE_MODEL = 'settings-voice-model';
+export const STORAGE_KEY_VOICE_LOCALE = 'settings-voice-locale';
 
 export const DEBUG = true;
 

@@ -1,6 +1,6 @@
 "use client"
 
-import {useState, useRef, useEffect, useMemo} from "react"
+import {useState, useRef, useEffect} from "react"
 import { Button } from "~components/ui/button"
 import { Slider } from "~components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~components/ui/select"
@@ -9,7 +9,7 @@ import { cn } from "~components/lib/utils"
 import "~global.css"
 import {useStorage} from "@plasmohq/storage/dist/hook";
 import type {VoiceModel} from "~type";
-import {SAMPLE_TEXT, STORAGE_KEY_VOICE_MODEL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
+import {SAMPLE_TEXT, STORAGE_KEY_VOICE_LOCALE, STORAGE_KEY_VOICE_MODEL, TTS_API_TOKEN, TTS_API_URL} from "~constants";
 import {requestSpeech} from "~TTSService";
 import {Avatar, AvatarImage} from "~components/ui/avatar";
 import * as React from "react";
@@ -22,7 +22,7 @@ export default function Popup() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const [locales, setLocales] = useState<any[]>([]);
-  const [locale, setLocale] = useState(null)
+  const [locale, setLocale] = useStorage<string>(STORAGE_KEY_VOICE_LOCALE)
   const [models, setModels] = useState<VoiceModel[]>([]);
   const [filteredModels, setFilteredModels] = useState<VoiceModel[]>([]);
   const [voiceModel, setVoiceModel] = useStorage<VoiceModel>(STORAGE_KEY_VOICE_MODEL);
@@ -52,6 +52,7 @@ export default function Popup() {
     const uniqueLocales = [...new Set(locales)];
     setLocales(uniqueLocales);
     setModels(voicesData);
+    setFilteredModels(voicesData);
   }
 
   useEffect(() => {
@@ -167,7 +168,7 @@ export default function Popup() {
         <div className="grid gap-6 md:grid-cols-2 h-32">
           <div className="space-y-2">
             <label className="text-sm font-medium">Select a Locale</label>
-            <Select value={locale} onValueChange={handleLocaleChange}>
+            <Select value={locale} onValueChange={handleLocaleChange} disabled={!loading}>
               <SelectTrigger>
                 <SelectValue placeholder="Select locale"/>
               </SelectTrigger>
@@ -181,7 +182,7 @@ export default function Popup() {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Select a Voice</label>
-            <Select value={voiceModel?.Name} onValueChange={handleVoiceChange} disabled={!locale}>
+            <Select value={voiceModel?.Name} onValueChange={handleVoiceChange} disabled={!locale && !loading}>
               <SelectTrigger>
                 <SelectValue placeholder="Select voice"/>
               </SelectTrigger>
