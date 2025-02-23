@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   DEBUG,
   EVENT_SOURCE_PLAYER,
@@ -21,7 +21,7 @@ if (!DEBUG) {
 function Player() {
   const [audio, setAudio] = useState<AudioInfo | null>(null)
 
-  window.addEventListener("message", (event) => {
+  const eventListener = (event) => {
     if (event.data && event.data.command === MESSAGE_TYPE_UPDATE_AUDIO_DATA) {
       console.log("event.data", event)
       if (!event.data.data) {
@@ -40,7 +40,14 @@ function Player() {
 
       console.log("audioUrl", audioUrl);
     }
-  });
+  }
+  useEffect(() => {
+    // listen for messages from the player
+    window.addEventListener('message', eventListener);
+    return () => {
+      window.removeEventListener('message', eventListener);
+    }
+  }, [eventListener]);
 
   const sendDownloadEvent = () => {
     window.parent.postMessage({

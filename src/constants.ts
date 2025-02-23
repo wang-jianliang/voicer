@@ -15,7 +15,7 @@ export const DEMO_AUDIO_URL = 'https://cdn.pixabay.com/audio/2022/08/23/audio_d1
 export const STORAGE_KEY_VOICE_MODEL = 'settings-voice-model';
 export const STORAGE_KEY_VOICE_LOCALE = 'settings-voice-locale';
 
-export const DEBUG = true;
+export const DEBUG = false;
 
 export const TTS_API_URL = 'https://tts.hellogeek.work/api/v1';
 export const CHATTTS_API_URL = 'http://20.243.202.102:5000/api/v1';
